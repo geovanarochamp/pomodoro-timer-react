@@ -32,7 +32,11 @@ interface CyclesContextProviderPros {
 }
 
 export function CyclesContextProvider({ children }: CyclesContextProviderPros) {
-	const [cycles, setCycles] = useReducer((state: Cycle[], action) => {
+	const [cycles, dispatch] = useReducer((state: Cycle[], action: any) => {
+		if (action.type === 'ADD_NEW_CYCLE') {
+			return [...state, action.payload.newCycle]
+		}
+
 		return state
 	}, [])
 
@@ -46,15 +50,22 @@ export function CyclesContextProvider({ children }: CyclesContextProviderPros) {
 	}
 
 	function markCurrentCycleAsFinished() {
-		setCycles((state) =>
-			state.map((cycle) => {
-				if (cycle.id === activeCycleId) {
-					return { ...cycle, finishedDate: new Date() }
-				} else {
-					return cycle
-				}
-			}),
-		)
+		dispatch({
+			type: 'MARK_CURRENT_CYCLE_AS_FINISHED',
+			payload: {
+				activeCycleId,
+			},
+		})
+
+		// setCycles((state) =>
+		// 	state.map((cycle) => {
+		// 		if (cycle.id === activeCycleId) {
+		// 			return { ...cycle, finishedDate: new Date() }
+		// 		} else {
+		// 			return cycle
+		// 		}
+		// 	}),
+		// )
 	}
 
 	function createNewCycle(data: CreateCycleData) {
@@ -65,21 +76,35 @@ export function CyclesContextProvider({ children }: CyclesContextProviderPros) {
 			startDate: new Date(),
 		}
 
-		setCycles((state) => [...state, newCycle])
+		dispatch({
+			type: 'ADD_NEW_CYCLE',
+			payload: {
+				newCycle,
+			},
+		})
+
+		// setCycles((state) => [...state, newCycle])
 		setActiveCycleId(newCycle.id)
 		setAmountSecondsPassed(0)
 	}
 
 	function interruptCurrentCycle() {
-		setCycles((state) =>
-			cycles.map((cycle) => {
-				if (cycle.id === activeCycleId) {
-					return { ...cycle, interruptedDate: new Date() }
-				} else {
-					return cycle
-				}
-			}),
-		)
+		dispatch({
+			type: 'INTERRUPT_CURRENT_CYCLE',
+			payload: {
+				data: activeCycleId,
+			},
+		})
+
+		// setCycles((state) =>
+		// 	cycles.map((cycle) => {
+		// 		if (cycle.id === activeCycleId) {
+		// 			return { ...cycle, interruptedDate: new Date() }
+		// 		} else {
+		// 			return cycle
+		// 		}
+		// 	}),
+		// )
 		setActiveCycleId(null)
 	}
 
